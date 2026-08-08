@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "aSmPHVZp7amvp2uA37V0RuHGqk48VJwobnPAwLgA2o0=",
+  "Source": "BankFlow.Api",
+  "BasePath": "_content/BankFlow.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
