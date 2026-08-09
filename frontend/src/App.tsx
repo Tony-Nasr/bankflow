@@ -1,5 +1,7 @@
 import DashboardPage from './pages/DashboardPage'  //new
 import FlaggedPage from './pages/FlaggedPage' //new
+import AuditLogsPage from './pages/AuditLogsPage' //new
+import ReportsPage from './pages/ReportsPage'  //new
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import LoginPage from './pages/LoginPage'
 import DashboardLayout from './components/DashboardLayout'
@@ -28,8 +30,9 @@ function App() {
 <Route path="customers" element={<CustomersPage />} />
 <Route path="flagged" element={<FlaggedPage />} />
 
-          <Route path="reports" element={<div className="text-white">Reports coming soon...</div>} />
-          <Route path="audit-logs" element={<div className="text-white">Audit Logs coming soon...</div>} />
+<Route path="reports" element={<ReportsPage />} />
+<Route path="audit-logs" element={<AuditLogsPage />} />
+
           <Route path="users" element={<div className="text-white">Users coming soon...</div>} />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" />} />
