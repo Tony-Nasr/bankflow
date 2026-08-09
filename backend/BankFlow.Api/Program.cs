@@ -96,6 +96,8 @@ builder.Services.AddSwaggerGen(options =>
 
 
 builder.Services.AddScoped<TokenService>();
+
+builder.Services.AddHttpClient<FraudDetectionService>();//new
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {

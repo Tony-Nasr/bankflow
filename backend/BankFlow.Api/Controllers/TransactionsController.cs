@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Microsoft.AspNetCore.SignalR;
 using BankFlow.Api.Hubs;
+using BankFlow.Api.Services;//new
 
 namespace BankFlow.Api.Controllers;
 
@@ -14,13 +15,19 @@ namespace BankFlow.Api.Controllers;
 [Authorize]
 public class TransactionsController : ControllerBase
 {
+    //new
     private readonly AppDbContext _context;
 private readonly IHubContext<TransactionHub> _hub;
+private readonly FraudDetectionService _fraudService;
 
-public TransactionsController(AppDbContext context, IHubContext<TransactionHub> hub)
+public TransactionsController(
+    AppDbContext context,
+    IHubContext<TransactionHub> hub,
+    FraudDetectionService fraudService)
 {
     _context = context;
     _hub = hub;
+    _fraudService = fraudService;
 }
 
     [HttpGet]
@@ -111,6 +118,28 @@ public TransactionsController(AppDbContext context, IHubContext<TransactionHub> 
             customer.Balance -= dto.Amount;
 
         _context.Transactions.Add(transaction);
+
+//new
+// AI Fraud Detection
+try
+{
+    var recentHistory = await _context.Transactions
+        .Where(t => t.CustomerId == dto.CustomerId)
+        .OrderByDescending(t => t.CreatedAt)
+        .Take(10)
+        .ToListAsync();
+
+    var (riskScore, feedback) = await _fraudService.AnalyzeTransaction(
+        transaction, customer, recentHistory);
+
+    transaction.AiRiskScore = riskScore;
+    transaction.AiFeedback = feedback;
+    transaction.IsFlagged = riskScore >= 61;
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"AI analysis failed: {ex.Message}");
+}
 
         // Add audit log
         _context.AuditLogs.Add(new AuditLog
