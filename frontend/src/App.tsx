@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import LoginPage from './pages/LoginPage'
 import DashboardLayout from './components/DashboardLayout'
 import { useAuthStore } from './store/authStore'
+import CustomersPage from './pages/CustomersPage'
+import TransactionsPage from './pages/TransactionsPage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
@@ -19,8 +21,8 @@ function App() {
           </ProtectedRoute>
         }>
           <Route path="dashboard" element={<div className="text-white text-2xl font-bold">Welcome to BankFlow 👋</div>} />
-          <Route path="transactions" element={<div className="text-white">Transactions coming soon...</div>} />
-          <Route path="customers" element={<div className="text-white">Customers coming soon...</div>} />
+          <Route path="transactions" element={<TransactionsPage />} />
+<Route path="customers" element={<CustomersPage />} />
           <Route path="flagged" element={<div className="text-white">Flagged coming soon...</div>} />
           <Route path="reports" element={<div className="text-white">Reports coming soon...</div>} />
           <Route path="audit-logs" element={<div className="text-white">Audit Logs coming soon...</div>} />
