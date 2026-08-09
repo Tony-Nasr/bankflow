@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using Microsoft.AspNetCore.SignalR;
+using BankFlow.Api.Hubs;
 
 namespace BankFlow.Api.Controllers;
 
@@ -13,11 +15,13 @@ namespace BankFlow.Api.Controllers;
 public class TransactionsController : ControllerBase
 {
     private readonly AppDbContext _context;
+private readonly IHubContext<TransactionHub> _hub;
 
-    public TransactionsController(AppDbContext context)
-    {
-        _context = context;
-    }
+public TransactionsController(AppDbContext context, IHubContext<TransactionHub> hub)
+{
+    _context = context;
+    _hub = hub;
+}
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -120,6 +124,20 @@ public class TransactionsController : ControllerBase
         });
 
         await _context.SaveChangesAsync();
+
+//new
+await _hub.Clients.All.SendAsync("ReceiveTransaction", new {
+    transaction.Id,
+    transaction.Type,
+    transaction.Amount,
+    transaction.CreatedAt,
+    transaction.IsFlagged,
+    transaction.AiRiskScore,
+    CustomerName = customer.FullName,
+    CustomerAccount = customer.AccountNumber,
+    BranchId = transaction.BranchId
+});
+
         return Ok(transaction);
     }
 }

@@ -1,3 +1,4 @@
+import DashboardPage from './pages/DashboardPage'  //new
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import LoginPage from './pages/LoginPage'
 import DashboardLayout from './components/DashboardLayout'
@@ -20,7 +21,7 @@ function App() {
             <DashboardLayout />
           </ProtectedRoute>
         }>
-          <Route path="dashboard" element={<div className="text-white text-2xl font-bold">Welcome to BankFlow 👋</div>} />
+<Route path="dashboard" element={<DashboardPage />} />
           <Route path="transactions" element={<TransactionsPage />} />
 <Route path="customers" element={<CustomersPage />} />
           <Route path="flagged" element={<div className="text-white">Flagged coming soon...</div>} />

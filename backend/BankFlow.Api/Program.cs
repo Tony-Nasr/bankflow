@@ -119,5 +119,7 @@ app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+//new
+app.MapHub<BankFlow.Api.Hubs.TransactionHub>("/hubs/transactions");
 
 app.Run();
