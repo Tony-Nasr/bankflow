@@ -12,4 +12,6 @@ RUN dotnet publish -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=build /app/publish .
+ENV DOTNET_USE_POLLING_FILE_WATCHER=true
+ENV ASPNETCORE_HOSTINGSTARTUPASSEMBLIES=""
 ENTRYPOINT ["dotnet", "BankFlow.Api.dll"]
