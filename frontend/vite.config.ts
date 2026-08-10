@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => ({
   //new
   define: {
     __API_URL__: mode === 'production'
-      ? '"https://bankflow-4u21.onrender.com/api"'
+      ? '"https://bankflow-4u2l.onrender.com/api"'
       : '"http://localhost:5004/api"'
   }
 }))
