@@ -1,0 +1,57 @@
+services:
+  db:
+    image: postgres:15
+    container_name: bankflow-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: bankflow
+    ports:
+      - "5433:5432"
+    volumes:
+      - bankflow-db-data:/var/lib/postgresql/data
+    networks:
+      - bankflow-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend/BankFlow.Api
+      dockerfile: Dockerfile
+    container_name: bankflow-backend
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://0.0.0.0:8080
+      - ConnectionStrings__Default=Host=db;Database=bankflow;Username=postgres;Password=postgres
+      - Jwt__Secret=${JWT_SECRET}
+      - Groq__ApiKey=${GROQ_API_KEY}
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - bankflow-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: bankflow-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - bankflow-network
+
+networks:
+  bankflow-network:
+    driver: bridge
+
+volumes:
+  bankflow-db-data:

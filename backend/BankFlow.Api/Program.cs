@@ -99,6 +99,14 @@ builder.Services.AddScoped<TokenService>();
 
 builder.Services.AddHttpClient<FraudDetectionService>();//new
 var app = builder.Build();
+//new
+// Auto-migrate on startup
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import api from '../services/api'
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend
+  PieChart, Pie, Cell
 } from 'recharts'
 
 interface Summary {
@@ -85,18 +85,18 @@ export default function AnalyticsPage() {
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>
               <Pie
-                data={riskDist}
-                dataKey="count"
-                nameKey="range"
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                label={({ range, count }) => `${range}: ${count}`}
-              >
-                {riskDist.map((_: any, index: number) => (
-                  <Cell key={index} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
+  data={riskDist}
+  dataKey="count"
+  nameKey="range"
+  cx="50%"
+  cy="50%"
+  outerRadius={80}
+  label={(entry: any) => `${entry.range}: ${entry.count}`}
+>
+  {riskDist.map((_: any, index: number) => (
+    <Cell key={index} fill={COLORS[index % COLORS.length]} />
+  ))}
+</Pie>
               <Tooltip
                 contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 8 }}
               />
