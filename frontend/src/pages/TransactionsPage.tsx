@@ -32,7 +32,7 @@ export default function TransactionsPage() {
   const [branches, setBranches] = useState<Branch[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
-  const { feed, connected } = useTransactionFeed()
+const { feed } = useTransactionFeed()
   const [form, setForm] = useState({
     type: 'Deposit', amount: 0,
     description: '', customerId: 0, branchId: 0
