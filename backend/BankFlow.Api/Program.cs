@@ -24,19 +24,19 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
 
-// 3. CORS - Fixed for SignalR and Vercel credentials
+// 3. CORS - Set as Default Policy so Endpoint Routing & SignalR automatically pick it up
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend", policy =>
+    options.AddDefaultPolicy(policy =>
     {
         policy.SetIsOriginAllowed(_ => true) // Allows origin dynamically with credentials
               .AllowAnyMethod()
               .AllowAnyHeader()
-              .AllowCredentials(); // Essential for SignalR WebSockets/Negotiate
+              .AllowCredentials();           // Required for SignalR
     });
 });
 
-// 4. JWT Authentication - Fixed for SignalR query tokens
+// 4. JWT Authentication
 var jwtSecret = builder.Configuration["Jwt:Secret"]!;
 builder.Services.AddAuthentication(options =>
 {
@@ -55,7 +55,7 @@ builder.Services.AddAuthentication(options =>
         ClockSkew = TimeSpan.Zero
     };
 
-    // Enables SignalR to read the token passed in URL query parameters
+    // Extract JWT token from SignalR WebSocket query string
     options.Events = new JwtBearerEvents
     {
         OnMessageReceived = context =>
@@ -82,7 +82,7 @@ builder.Services.AddControllers()
 builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
 
-// 6. Swagger Configuration
+// 6. Swagger
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
@@ -141,13 +141,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// 9. Middleware Pipeline
-app.UseCors("AllowFrontend");
+// 9. Middleware Pipeline - Order Matters!
+app.UseCors(); // Applies Default Policy globally
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHub<BankFlow.Api.Hubs.TransactionHub>("/hubs/transactions");
+
+// Explicitly require CORS policy on the SignalR Hub endpoint
+app.MapHub<BankFlow.Api.Hubs.TransactionHub>("/hubs/transactions").RequireCors();
 
 app.Run();
