@@ -1,3 +1,4 @@
+import { useTransactionFeed } from '../hooks/useTransactionFeed'
 import { useEffect, useState } from 'react'
 import api from '../services/api'
 
@@ -31,10 +32,13 @@ export default function TransactionsPage() {
   const [branches, setBranches] = useState<Branch[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
+  const { feed, connected } = useTransactionFeed()
   const [form, setForm] = useState({
     type: 'Deposit', amount: 0,
     description: '', customerId: 0, branchId: 0
   })
+
+
 
   const fetchAll = async () => {
     try {
@@ -52,6 +56,28 @@ export default function TransactionsPage() {
   }
 
   useEffect(() => { fetchAll() }, [])
+
+  //new
+  useEffect(() => {
+  if (feed.length === 0) return
+  setTransactions(prev => {
+    const newTx = feed[0]
+    const already = prev.find(t => t.id === newTx.id)
+    if (already) return prev
+    return [{
+      id: newTx.id,
+      type: newTx.type,
+      amount: newTx.amount,
+      description: '',
+      createdAt: newTx.createdAt,
+      isFlagged: newTx.isFlagged,
+      aiRiskScore: newTx.aiRiskScore,
+      customer: { fullName: newTx.customerName, accountNumber: newTx.customerAccount },
+      branch: undefined,
+    }, ...prev]
+  })
+}, [feed])
+
 
   const handleProcess = async () => {
   if (!form.customerId || !form.branchId || !form.amount) {
