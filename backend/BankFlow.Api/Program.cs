@@ -46,20 +46,22 @@ builder.Services.AddAuthentication(options =>
 
 // CORS
 //new
+// In Program.cs
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins(
-            "http://localhost:5173",
-            "https://bankflow-roan.vercel.app",
-            "https://bankflow-licfxv2u6-tony-nasrs-projects.vercel.app"
-        )
-        .AllowAnyHeader()
-        .AllowAnyMethod()
-        .AllowCredentials();
+        policy.WithOrigins("https://bankflow-roan.vercel.app") // Your exact frontend URL
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials(); // This is the crucial missing piece for SignalR
     });
 });
+
+// ... later in the file, before app.UseAuthorization() and app.MapHub ...
+
+
 
 //new
 builder.Services.AddControllers()
