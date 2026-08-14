@@ -1,3 +1,4 @@
+declare const __API_URL__: string
 import { useEffect, useState } from 'react'
 import * as signalR from '@microsoft/signalr'
 
@@ -13,15 +14,21 @@ interface LiveTransaction {
   branchId: number
 }
 
+const HUB_URL = typeof __API_URL__ !== 'undefined'
+  ? __API_URL__.replace('/api', '/hubs/transactions')
+  : 'http://localhost:5004/hubs/transactions'
+
 export function useTransactionFeed() {
   const [feed, setFeed] = useState<LiveTransaction[]>([])
   const [connected, setConnected] = useState(false)
 
   useEffect(() => {
     const connection = new signalR.HubConnectionBuilder()
-.withUrl(`${import.meta.env.VITE_API_URL?.replace('/api', '')}/hubs/transactions`, {
-  accessTokenFactory: () => localStorage.getItem('token') ?? ''
-})
+      .withUrl(HUB_URL, {
+        accessTokenFactory: () => localStorage.getItem('token') ?? '',
+        skipNegotiation: true,
+        transport: signalR.HttpTransportType.WebSockets
+      })
       .withAutomaticReconnect()
       .build()
 

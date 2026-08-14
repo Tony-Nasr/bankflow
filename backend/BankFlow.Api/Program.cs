@@ -50,10 +50,14 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("https://bankflow-roan.vercel.app")
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials(); // add this line
+        policy.WithOrigins(
+            "http://localhost:5173",
+            "https://bankflow-roan.vercel.app",
+            "https://bankflow-licfxv2u6-tony-nasrs-projects.vercel.app"
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials();
     });
 });
 
