@@ -9,11 +9,11 @@ using BankFlow.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Database
+// 1. Database
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
-// Identity
+// 2. Identity
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
@@ -24,7 +24,19 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
 
-// JWT
+// 3. CORS - Fixed for SignalR and Vercel credentials
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.SetIsOriginAllowed(_ => true) // Allows origin dynamically with credentials
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials(); // Essential for SignalR WebSockets/Negotiate
+    });
+});
+
+// 4. JWT Authentication - Fixed for SignalR query tokens
 var jwtSecret = builder.Configuration["Jwt:Secret"]!;
 builder.Services.AddAuthentication(options =>
 {
@@ -42,38 +54,35 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
     };
-});
 
-// CORS
-//new
-// In Program.cs
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowFrontend", policy =>
+    // Enables SignalR to read the token passed in URL query parameters
+    options.Events = new JwtBearerEvents
     {
-        policy.WithOrigins("https://bankflow-roan.vercel.app") // Your exact frontend URL
-              .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials(); // This is the crucial missing piece for SignalR
-    });
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 
-// ... later in the file, before app.UseAuthorization() and app.MapHub ...
-
-
-
-//new
+// 5. Controllers & SignalR
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
         options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
     });
-    
-    builder.Services.AddSignalR();
+
+builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
-//new
+
+// 6. Swagger Configuration
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
@@ -101,19 +110,19 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-
 builder.Services.AddScoped<TokenService>();
+builder.Services.AddHttpClient<FraudDetectionService>();
 
-builder.Services.AddHttpClient<FraudDetectionService>();//new
 var app = builder.Build();
-//new
-// Auto-migrate on startup
+
+// 7. Auto-migrate on startup
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
 }
 
+// 8. Seed Roles
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -132,12 +141,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// 9. Middleware Pipeline
 app.UseCors("AllowFrontend");
+
 app.UseAuthentication();
-//app.UseCors("AllowFrontend"); //new
 app.UseAuthorization();
+
 app.MapControllers();
-//new
 app.MapHub<BankFlow.Api.Hubs.TransactionHub>("/hubs/transactions");
 
 app.Run();
