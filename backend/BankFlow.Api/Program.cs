@@ -52,7 +52,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins("https://bankflow-roan.vercel.app")
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials(); // add this line
     });
 });
 
@@ -127,7 +128,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowFrontend");
 app.UseAuthentication();
-app.UseCors("AllowFrontend"); //new
+//app.UseCors("AllowFrontend"); //new
 app.UseAuthorization();
 app.MapControllers();
 //new

@@ -19,8 +19,9 @@ export function useTransactionFeed() {
 
   useEffect(() => {
     const connection = new signalR.HubConnectionBuilder()
-.withUrl(`${import.meta.env.VITE_API_URL?.replace('/api', '')}/hubs/transactions`, {        accessTokenFactory: () => localStorage.getItem('token') ?? ''
-      })
+.withUrl(`${import.meta.env.VITE_API_URL?.replace('/api', '')}/hubs/transactions`, {
+  accessTokenFactory: () => localStorage.getItem('token') ?? ''
+})
       .withAutomaticReconnect()
       .build()
 
