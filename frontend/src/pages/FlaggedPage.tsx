@@ -20,7 +20,7 @@ export default function FlaggedPage() {
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState<Transaction | null>(null)
 
-  // 1. Connect to the real-time SignalR feed
+  // Connect to the real-time SignalR feed
   const { feed } = useTransactionFeed()
 
   const fetchFlagged = async () => {
@@ -34,7 +34,7 @@ export default function FlaggedPage() {
 
   useEffect(() => { fetchFlagged() }, [])
 
-  // 2. Listen for real-time transactions from SignalR
+  // Listen for real-time transactions from SignalR
   useEffect(() => {
     if (feed.length === 0) return
 
@@ -52,10 +52,10 @@ export default function FlaggedPage() {
         id: newTx.id,
         type: newTx.type,
         amount: newTx.amount,
-        description: newTx.description || '',
+        description: '', // Fallback empty string for live feed
         createdAt: newTx.createdAt,
         aiRiskScore: newTx.aiRiskScore,
-        aiFeedback: newTx.aiFeedback || 'High risk transaction flagged by AI monitoring.',
+        aiFeedback: 'Flagged in real-time by AI risk monitoring.', // Default fallback message
         customer: {
           fullName: newTx.customerName,
           accountNumber: newTx.customerAccount
