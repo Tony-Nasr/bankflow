@@ -14,9 +14,8 @@ interface LiveTransaction {
   branchId: number
 }
 
-const HUB_URL = typeof __API_URL__ !== 'undefined'
-  ? __API_URL__.replace('/api', '/hubs/transactions')
-  : 'http://localhost:5004/hubs/transactions'
+const HUB_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5004/api')
+  .replace('/api', '/hubs/transactions')
 
 export function useTransactionFeed() {
   const [feed, setFeed] = useState<LiveTransaction[]>([])
