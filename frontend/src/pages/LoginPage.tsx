@@ -61,6 +61,30 @@ export default function LoginPage() {
               placeholder="••••••••"
               required
             />
+
+{/* Demo Accounts */}
+<div className="mt-6 pt-6 border-t border-slate-700">
+  <p className="text-slate-400 text-xs mb-3 font-medium uppercase tracking-wide">Demo Accounts</p>
+  <div className="space-y-2">
+    {[
+      { role: 'Admin', email: 'admin@bankflow.com', password: 'Admin1234', color: 'text-purple-400' },
+      { role: 'Manager', email: 'manager@bankflow.com', password: 'Manager1234', color: 'text-blue-400' },
+      { role: 'Teller', email: 'teller@bankflow.com', password: 'Teller1234', color: 'text-green-400' },
+      { role: 'Auditor', email: 'auditor@bankflow.com', password: 'Auditor1234', color: 'text-yellow-400' },
+    ].map((account) => (
+      <button
+        key={account.role}
+        onClick={() => { setEmail(account.email); setPassword(account.password) }}
+        className="w-full flex items-center justify-between bg-slate-800 hover:bg-slate-700 rounded-lg px-3 py-2 transition"
+      >
+        <span className={`text-xs font-semibold ${account.color}`}>{account.role}</span>
+        <span className="text-xs text-slate-400">{account.email}</span>
+      </button>
+    ))}
+  </div>
+  <p className="text-slate-600 text-xs mt-2 text-center">Click any role to auto-fill credentials</p>
+</div>
+
           </div>
           <button
             type="submit"

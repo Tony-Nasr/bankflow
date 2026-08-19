@@ -16,7 +16,7 @@ namespace BankFlow.Api.Controllers;
 public class TransactionsController : ControllerBase
 {
     //new
-    private readonly AppDbContext _context;
+private readonly AppDbContext _context;
 private readonly IHubContext<TransactionHub> _hub;
 private readonly FraudDetectionService _fraudService;
 
